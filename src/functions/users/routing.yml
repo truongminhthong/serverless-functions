@@ -1,0 +1,30 @@
+list:
+  handler: src/functions/users/handler.getUsers
+  events:
+    - http:
+        path: /users
+        method: get
+findById:
+  handler: src/functions/users/handler.getUserById
+  events:
+    - http:
+        path: /users/{id}
+        method: get
+create:
+  handler: src/functions/users/handler.createUser
+  events:
+    - http:
+        path: /users
+        method: post
+update:
+  handler: src/functions/users/handler.updateUser
+  events:
+    - http:
+        path: /users/{id}
+        method: put
+delete:
+  handler: src/functions/users/handler.deleteUser
+  events:
+    - http:
+        path: /users/{id}
+        method: delete
