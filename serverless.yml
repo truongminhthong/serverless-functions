@@ -1,0 +1,24 @@
+service: aws-node-http-api-project
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
+  jsonData:
+    handler: handler.jsonData
+    events:
+      - httpApi:
+          path: /jsonData
+          method: get
+          response:
+            headers:
+              Content-Type: "'application/json'"
+              Cache-Control: "'max-age=120'" 
