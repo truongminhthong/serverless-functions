@@ -2,19 +2,23 @@
   "name": "serverless-typescript",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/app.js",
+  "main": "dist/handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.ts --project tsconfig.json"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.100",
     "nodemon": "^2.0.16",
+    "serverless-offline": "^8.8.0",
+    "serverless-plugin-typescript": "^2.1.2",
     "typescript": "^4.7.3"
   },
   "dependencies": {
+    "aws-sdk": "^2.1152.0",
+    "class-validator": "^0.13.2",
     "ts-node": "^10.8.1"
   }
 }
