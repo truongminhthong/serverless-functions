@@ -8,7 +8,7 @@ import UserService from "./user.service";
 
 const userService = new UserService();
 export const gets = async (
-  event: APIGatewayProxyEvent
+  event: any
 ): Promise<APIGatewayProxyResult> => {
   try {
     const queries = event.queryStringParameters;
@@ -48,7 +48,7 @@ export const findOne = async (
 };
 
 export const createUser = async (
-  event: APIGatewayProxyEvent
+  event: any
 ): Promise<APIGatewayProxyResult> => {
   try {
     const body = JSON.parse(event.body);
