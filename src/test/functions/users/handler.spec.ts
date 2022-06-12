@@ -85,7 +85,7 @@ const event: APIGatewayProxyEvent = {
 describe("#getUsers", () => {
   it("Get Users With No Params", async () => {
     const result = await getUsers(Object.assign(event, { queryStringParameters: null }));
-    expect(result.statusCode).toEqual(STATUS_CODE.OK);
+    expect(result.statusCode).toEqual(STATUS_CODE.BAD_REQUEST);
   });
 
   it("Get Users With Params", async () => {
