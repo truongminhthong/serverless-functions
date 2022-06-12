@@ -37,7 +37,7 @@ export const findOne = async (
     const user = await userService.getById(id);
     if (!user) {
       return Responses._404({
-        message: "User not found",
+        message: "User not found!",
       });
     }
 
