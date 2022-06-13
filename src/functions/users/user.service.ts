@@ -10,7 +10,7 @@ export default class UserService {
     this.dynamoHepler = new DynamoHepler<IUser>('Users');
   }
   
-  async getById(id: string) {
+  async getById(id: string): Promise<IUser> {
     return this.dynamoHepler.get('id', id);
   }
 
