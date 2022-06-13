@@ -25,34 +25,37 @@ jest.mock("../../../functions/users/user.service", () => ({
         return null;
       }),
       getUsers: jest.fn().mockImplementation(() => {
-        return [
-          {
-            phoneNumber: "05453534324",
-            password: "123456",
-            email: "minhthong4@yopmail.com",
-            fullName: "MinhThong",
-            id: "3673d41c-fc79-4992-a67d-d4a75eb248c4",
-          },
-          {
-            phoneNumber: "05453534324",
-            password: "123456",
-            email: "minhthong5@yopmail.com",
-            fullName: "MinhThong123",
-            id: "e52abf89-3c1b-4271-b9fc-f9eba87f81de",
-          },
-          {
-            phoneNumber: "05453534324",
-            fullName: "MinhThong",
-            id: "3673d41c-fc79-4992-a67d-d4a75eb248",
-          },
-          {
-            phoneNumber: "05453534324",
-            password: "123456",
-            fullName: "MinhThong123",
-            id: "a4da78c8-97fa-4be3-8408-33969fdddd89",
-            email: "minhthong11@yopmail.com",
-          }
-        ];
+        return {
+          users: [
+            {
+              phoneNumber: "05453534324",
+              password: "123456",
+              email: "minhthong4@yopmail.com",
+              fullName: "MinhThong",
+              id: "3673d41c-fc79-4992-a67d-d4a75eb248c4",
+            },
+            {
+              phoneNumber: "05453534324",
+              password: "123456",
+              email: "minhthong5@yopmail.com",
+              fullName: "MinhThong123",
+              id: "e52abf89-3c1b-4271-b9fc-f9eba87f81de",
+            },
+            {
+              phoneNumber: "05453534324",
+              fullName: "MinhThong",
+              id: "3673d41c-fc79-4992-a67d-d4a75eb248",
+            },
+            {
+              phoneNumber: "05453534324",
+              password: "123456",
+              fullName: "MinhThong123",
+              id: "a4da78c8-97fa-4be3-8408-33969fdddd89",
+              email: "minhthong11@yopmail.com",
+            }
+          ],
+          lastEvaluatedKey: null
+        };
       }),
       createUser: jest.fn().mockImplementation(() => {
         return {};

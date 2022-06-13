@@ -8,7 +8,10 @@ jest.mock("../../../libs/dynamo-hepler", () => ({
         return {};
       }),
       gets: jest.fn().mockImplementation(() => {
-        return [];
+        return {
+          data: [],
+          lastEvaluatedKey: null
+        };
       }),
       write: jest.fn().mockImplementation(() => {
         return {};
