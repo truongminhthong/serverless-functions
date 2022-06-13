@@ -1,12 +1,13 @@
 import AWS from "aws-sdk";
 import IBaseModel from "./base.model";
-const documentClient = new AWS.DynamoDB.DocumentClient();
 
 export default class DynamoHepler<T extends IBaseModel> {
   private readonly _tableName: string;
+  private readonly _documentClient: AWS.DynamoDB.DocumentClient;
 
   constructor(tableName: string) {
     this._tableName = tableName;
+    this._documentClient = new AWS.DynamoDB.DocumentClient();
   }
 
   public async get(key: string, value: string): Promise<T> {
@@ -16,7 +17,7 @@ export default class DynamoHepler<T extends IBaseModel> {
         [key]: value,
       },
     };
-    const result = await documentClient.get(params).promise();
+    const result = await this._documentClient.get(params).promise();
     if (!result || !result.Item) {
       return null;
     }
@@ -28,12 +29,18 @@ export default class DynamoHepler<T extends IBaseModel> {
       throw Error("no id on the data");
     }
 
+    data = {
+      ...data,
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
+    };
+
     const params = {
       TableName: this._tableName,
       Item: data,
     };
 
-    const res = await documentClient.put(params).promise();
+    const res = await this._documentClient.put(params).promise();
 
     if (!res) {
       throw Error(
@@ -44,21 +51,25 @@ export default class DynamoHepler<T extends IBaseModel> {
     return data;
   }
 
-  public async gets(params: { [key: string]: any }): Promise<T[]> {
-    let result,
-      accumulated = [],
-      ExclusiveStartKey;
+  public async gets(params: { [key: string]: any }): Promise<{
+    data: T[];
+    lastEvaluatedKey: string;
+  }> {
+    let result, ExclusiveStartKey;
     let filterExpression: string = "";
     let expressionAttributeValues: { [key: string]: any } = {};
+
     const items = Object.keys(params)
       .filter((key) => !!key && !!params[key])
       .map((key) => ({
         key,
         value: params[key],
       }));
+    
     filterExpression = items
       .map((c) => `contains (${c.key}, :${c.key})`)
       .join(` and `);
+
     expressionAttributeValues = items.reduce(
       (
         previousValue: { [key: string]: any },
@@ -73,30 +84,29 @@ export default class DynamoHepler<T extends IBaseModel> {
       {}
     );
 
-    do {
-      if (filterExpression) {
-        result = await documentClient
-          .scan({
-            TableName: this._tableName,
-            ExclusiveStartKey,
-            FilterExpression: filterExpression,
-            ExpressionAttributeValues: expressionAttributeValues,
-          })
-          .promise();
-      } else {
-        result = await documentClient
-          .scan({
-            TableName: this._tableName,
-            ExclusiveStartKey,
-          })
-          .promise();
-      }
+    if (filterExpression) {
+      result = await this._documentClient
+        .scan({
+          TableName: this._tableName,
+          ExclusiveStartKey,
+          FilterExpression: filterExpression,
+          ExpressionAttributeValues: expressionAttributeValues,
+        })
+        .promise();
+    } else {
+      result = await this._documentClient
+        .scan({
+          TableName: this._tableName,
+          ExclusiveStartKey,
+        })
+        .promise();
+    }
 
-      ExclusiveStartKey = result.LastEvaluatedKey;
-      accumulated = [...accumulated, ...result.Items];
-    } while (result.Items.length && result.LastEvaluatedKey);
-
-    return accumulated;
+    // return items and lastEvaluatedKey
+    return {
+      data: result.Items,
+      lastEvaluatedKey: result.LastEvaluatedKey,
+    };
   }
 
   public async update(
@@ -107,6 +117,10 @@ export default class DynamoHepler<T extends IBaseModel> {
   ): Promise<T> {
     let updateExpression: string = "";
     let expressionAttributeValues: { [key: string]: any } = {};
+    body = {
+      ...body,
+      updatedAt: new Date().getTime(),
+    };
     const items = Object.keys(body)
       .filter((key) => !!key && !!body[key])
       .map((key) => ({
@@ -132,7 +146,7 @@ export default class DynamoHepler<T extends IBaseModel> {
       {}
     );
 
-    if(!updateExpression) {
+    if (!updateExpression) {
       throw Error(
         `There was an error updating ID of ${id} in table ${this._tableName}. Body not null`
       );
@@ -145,10 +159,9 @@ export default class DynamoHepler<T extends IBaseModel> {
       },
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: "ALL_NEW"
+      ReturnValues: "ALL_NEW",
     };
-    const res = await documentClient.update(params).promise();
-    console.log('res', res);
+    const res = await this._documentClient.update(params).promise();
     if (!res) {
       throw Error(
         `There was an error updating ID of ${id} in table ${this._tableName}`
@@ -164,7 +177,7 @@ export default class DynamoHepler<T extends IBaseModel> {
         [key]: value,
       },
     };
-    const result = await documentClient.delete(params).promise();
+    const result = await this._documentClient.delete(params).promise();
     if (!result) {
       throw Error(
         `There was an error deleting ID of ${value} in table ${this._tableName}`

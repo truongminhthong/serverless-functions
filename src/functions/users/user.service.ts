@@ -7,10 +7,10 @@ import IUser from "./user.model";
 export default class UserService {
   private readonly dynamoHepler: DynamoHepler<IUser>;
   constructor() {
-    this.dynamoHepler = new DynamoHepler<IUser>('Users');
+    this.dynamoHepler = new DynamoHepler<IUser>('users');
   }
   
-  async getById(id: string) {
+  async getById(id: string): Promise<IUser> {
     return this.dynamoHepler.get('id', id);
   }
 
@@ -21,13 +21,20 @@ export default class UserService {
     return this.dynamoHepler.write(user);
   }
 
-  async getUsers(params: GetUserRequest): Promise<IUser[]> {
-    const users = await this.dynamoHepler.gets(params);
+  async getUsers(params: GetUserRequest): Promise<{
+    users: IUser[],
+    lastEvaluatedKey: string
+  }> {
+    const usersResult = await this.dynamoHepler.gets(params);
     // remove password filed from response
-    users.forEach(c => {
+    usersResult.data.forEach(c => {
       delete c.password;
     });
-    return users;
+    
+    return {
+      users: usersResult.data,
+      lastEvaluatedKey: usersResult.lastEvaluatedKey
+    };
   }
 
   async deleteUser(id: string): Promise<boolean> {
