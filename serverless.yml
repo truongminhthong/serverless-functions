@@ -12,6 +12,7 @@ provider:
     role:
       statements:
         - Effect: Allow
+          Principal: "*"
           Action:
             - dynamodb:DescribeTable
             - dynamodb:Query
@@ -20,6 +21,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
+            - s3:* 
           Resource: "*"
   stage: dev
   

@@ -5,7 +5,10 @@ import GetUserRequest from "./requests/get-user.request";
 import RegisterRequest from "./requests/register.request";
 import UpdateUserRequest from "./requests/update.request";
 import UserService from "./user.service";
+import AWS from "aws-sdk";
+import UtilsService from "../../libs/utils";
 
+const S3 = new AWS.S3();
 const userService = new UserService();
 export const getUsers = async (
   event: APIGatewayProxyEvent
@@ -112,3 +115,30 @@ export const deleteUser = async (
     return Responses._500({ error: error.message });
   }
 };
+
+export const uploadFn = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => { 
+  try {
+    const { body } = await UtilsService.parseFormDataToFile(event);
+    
+   const uploadResults = await Promise.all(body.files.map((file) => {
+      return new Promise(async resolve => {
+        const params = {
+          Bucket: "update-to-s3-minhthong",
+          Key: `images/${file.fileName.filename.split('.')[0]}${new Date().getTime()}.${file.fileName.filename.split('.')[1]}`,
+          ContentType: file.contentType,
+          Body: file.file
+        }
+        const result = await S3.putObject(params).promise();
+        resolve(result);
+      })
+    }));
+    console.log('uploadResults: ', uploadResults);
+    return Responses._200({
+      message: 'Upload Success'
+    });
+  } catch (error) {
+    return Responses._500({ error: error.message });
+  }
+}

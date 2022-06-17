@@ -28,3 +28,12 @@ delete:
     - http:
         path: /users/{id}
         method: delete
+upload:
+  handler: src/functions/users/handler.uploadFn
+  description: A lambda handler that uploads a file to an S3 bucket base 
+  timeout: 60 # seconds
+  memorySize: 128 #mb
+  events:
+    - http:
+        path: /users/upload
+        method: post
