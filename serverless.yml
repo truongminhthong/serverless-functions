@@ -12,7 +12,6 @@ provider:
     role:
       statements:
         - Effect: Allow
-          Principal: "*"
           Action:
             - dynamodb:DescribeTable
             - dynamodb:Query
