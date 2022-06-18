@@ -160,9 +160,10 @@ export const resizeImage = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    let buff = Buffer.from(event.body, "base64");
-    let eventBodyStr = buff.toString('utf-8');
-    const body = JSON.parse(eventBodyStr);
+    console.log('body: ', event.body);
+    // let buff = Buffer.from(event.body, "base64");
+    // let eventBodyStr = buff.toString('utf-8');
+    const body = JSON.parse(event.body);
     console.log('version: ', body.version);
     console.log('source: ', body.source);
     console.log('eventName: ', body.detail.eventName);
