@@ -160,10 +160,12 @@ export const resizeImage = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
+    console.log('resizeImage: ', resizeImage);
+    console.log('event.body: ', event.body.substring(0, 1000));
     let buff = Buffer.from(event.body, "base64");
     let eventBodyStr = buff.toString('utf-8');
     const body = JSON.parse(eventBodyStr);
-    console.log('body: ', body);
+    // console.log('body: ', body);
     return Responses._200({
       message: "Get Source Error Success",
     });
