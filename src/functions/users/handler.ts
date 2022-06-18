@@ -165,7 +165,7 @@ export const resizeImage = async (
         message: "Event Not Support",
       });
     }
-    const resourcePath = event.detail.requestParameters.Key;
+    const resourcePath = event.detail.requestParameters.key;
     console.log('resourcePath', resourcePath);
     const action = "cover";
     const allowedMimeTypes = [
