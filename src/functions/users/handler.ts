@@ -160,8 +160,6 @@ export const resizeImage = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    console.log('resizeImage: ', resizeImage);
-    console.log('event.body: ', event.body.substring(0, 50));
     let buff = Buffer.from(event.body, "base64");
     let eventBodyStr = buff.toString('utf-8');
     const body = JSON.parse(eventBodyStr);
@@ -230,6 +228,7 @@ export const resizeImage = async (
     //   message: `Resize resource "${resourcePath} success"`,
     // });
   } catch (error) {
+    console.log('error: ', error.message);
     return Responses._500({ error: error.message });
   }
 };
