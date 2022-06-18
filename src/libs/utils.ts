@@ -1,6 +1,6 @@
 import AWS from "aws-sdk";
 import { GetObjectOutput } from "aws-sdk/clients/s3";
-import * as Busboy from "busboy";
+const Busboy = require('busboy');
 
 const S3 = new AWS.S3();
 export default class UtilsService {

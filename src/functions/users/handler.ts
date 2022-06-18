@@ -157,77 +157,73 @@ export const uploadFn = async (
 };
 
 export const resizeImage = async (
-  event: APIGatewayProxyEvent
+  event: any
 ): Promise<APIGatewayProxyResult> => {
   try {
-    console.log('body: ', event);
-    // let buff = Buffer.from(event.body, "base64");
-    // let eventBodyStr = buff.toString('utf-8');
-    const body = JSON.parse(event.body);
-    console.log('version: ', body.version);
-    console.log('source: ', body.source);
-    console.log('eventName: ', body.detail.eventName);
+    if(!event.detail || event.detail.eventName == 'PutObject') {
+      return Responses._400({
+        message: "Event Not Support",
+      });
+    }
+    const resourcePath = event.detail.requestParameters.Key;
+    console.log('resourcePath', resourcePath);
+    const action = "cover";
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/gif",
+      "image/png",
+      "image/svg+xml",
+      "image/tiff",
+      "image/bmp",
+    ];
+    const unsupportedSharpMimeTypes = ["image/bmp"];
+    // Fit validation
+    if(action && (FIT_OPTIONS.indexOf(action) === -1)) {
+      return Responses._200({
+        message: "Get Source Error Success",
+      });
+    }
+
+    let originalImage = await UtilsService.getResource(resourcePath);
+    if(!originalImage) { 
+      return Responses._404({
+        message: `Resource not found. Could not find resource: ${resourcePath}.`,
+      });
+    }
+    const originalImageMime = originalImage.ContentType;
+    if(!allowedMimeTypes.includes(originalImageMime)) {
+      return Responses._400({
+        message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
+      });
+    }
+
+    if(unsupportedSharpMimeTypes.includes(originalImageMime)) {
+      return Responses._400({
+        message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
+      });
+    }
+
+    const width = 300;
+    const height = 300;
+    const fit = action || 'cover';
+
+    // create a new image using provided dimensions.
+    const result = await Sharp(originalImage.Body, { failOnError: false })
+        .resize(width, height, { withoutEnlargement: true, fit })
+        .rotate()
+        .toBuffer();
+
+     // save newly created image to S3.
+     await S3.putObject({
+      Body: result,
+      Bucket: "update-to-s3-minhthong",
+      ContentType: originalImageMime,
+      Key: `resize-images/300x300/${resourcePath.split('/').pop()}`,
+     }).promise();
+
     return Responses._200({
-      message: "Get Source Error Success",
+      message: `Resize resource "${resourcePath} success"`,
     });
-    // const { resourcePath } = body;
-    // const action = body.action || "cover";
-    // const allowedMimeTypes = [
-    //   "image/jpeg",
-    //   "image/gif",
-    //   "image/png",
-    //   "image/svg+xml",
-    //   "image/tiff",
-    //   "image/bmp",
-    // ];
-    // const unsupportedSharpMimeTypes = ["image/bmp"];
-    // // Fit validation
-    // if(action && (FIT_OPTIONS.indexOf(action) === -1)) {
-    //   return Responses._200({
-    //     message: "Get Source Error Success",
-    //   });
-    // }
-
-    // let originalImage = await UtilsService.getResource(resourcePath);
-    // if(!originalImage) { 
-    //   return Responses._404({
-    //     message: `Resource not found. Could not find resource: ${resourcePath}.`,
-    //   });
-    // }
-    // const originalImageMime = originalImage.ContentType;
-    // if(!allowedMimeTypes.includes(originalImageMime)) {
-    //   return Responses._400({
-    //     message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
-    //   });
-    // }
-
-    // if(unsupportedSharpMimeTypes.includes(originalImageMime)) {
-    //   return Responses._400({
-    //     message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
-    //   });
-    // }
-
-    // const width = 300;
-    // const height = 300;
-    // const fit = action || 'cover';
-
-    // // create a new image using provided dimensions.
-    // const result = await Sharp(originalImage.Body, { failOnError: false })
-    //     .resize(width, height, { withoutEnlargement: true, fit })
-    //     .rotate()
-    //     .toBuffer();
-
-    //  // save newly created image to S3.
-    //  await S3.putObject({
-    //   Body: result,
-    //   Bucket: "update-to-s3-minhthong",
-    //   ContentType: originalImageMime,
-    //   Key: `resize-images/300x300/${resourcePath.split('/').pop()}`,
-    //  }).promise();
-
-    // return Responses._200({
-    //   message: `Resize resource "${resourcePath} success"`,
-    // });
   } catch (error) {
     console.log('error: ', error.message);
     return Responses._500({ error: error.message });
