@@ -160,7 +160,7 @@ export const resizeImage = async (
   event: any
 ): Promise<APIGatewayProxyResult> => {
   try {
-    if(!event.detail || event.detail.eventName == 'PutObject') {
+    if(!event.detail || event.detail.eventName != 'PutObject') {
       return Responses._400({
         message: "Event Not Support",
       });
