@@ -1,4 +1,8 @@
-var Busboy = require('busboy');
+import AWS from "aws-sdk";
+import { GetObjectOutput } from "aws-sdk/clients/s3";
+import * as Busboy from "busboy";
+
+const S3 = new AWS.S3();
 export default class UtilsService {
   public static generateGuid(): string {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -18,39 +22,57 @@ export default class UtilsService {
           ...event.headers,
           "content-type":
             event.headers["Content-Type"] || event.headers["content-type"],
-        }
+        },
       });
-    
+
       let result = {
-        files: []
+        files: [],
       };
-    
-      busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        file.on('data', data => {
+
+      busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+        file.on("data", (data) => {
           result.files.push({
             file: data,
             fileName: filename,
-            contentType: mimetype
+            contentType: mimetype,
           });
         });
       });
-    
-      busboy.on('field', (fieldname, value) => {
+
+      busboy.on("field", (fieldname, value) => {
         try {
           result[fieldname] = JSON.parse(value);
         } catch (err) {
           result[fieldname] = value;
         }
       });
-    
-      busboy.on('error', error => reject(`Parse error: ${error}`));
-      busboy.on('finish', () => {
+
+      busboy.on("error", (error) => reject(`Parse error: ${error}`));
+      busboy.on("finish", () => {
         event.body = result;
         resolve(event);
       });
-    
-      busboy.write(event.body, event.isBase64Encoded ? 'base64' : 'binary');
+
+      busboy.write(event.body, event.isBase64Encoded ? "base64" : "binary");
       busboy.end();
+    });
+  }
+
+  public static getResource(resourcePath: string): Promise<GetObjectOutput> {
+    let params = {
+      Bucket: "update-to-s3-minhthong",
+      Key: resourcePath,
+    };
+
+    return new Promise((resolve, reject) => {
+      S3.getObject(params, (err, data) => {
+        if (err) {
+          return resolve(null);
+        }
+        if (data) {
+          return resolve(data);
+        }
+      });
     });
   }
 }

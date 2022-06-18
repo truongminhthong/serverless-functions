@@ -37,3 +37,12 @@ upload:
     - http:
         path: /users/upload
         method: post
+resizeImage:
+  handler: src/functions/users/handler.resizeImage
+  description: A lambda handler that resize image a file to an S3 bucket base 
+  timeout: 60 # seconds
+  memorySize: 128 #mb
+  events:
+    - http:
+        path: /users/resize-image
+        method: post
