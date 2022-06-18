@@ -160,69 +160,69 @@ export const resizeImage = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const body = JSON.parse(event.body);
-    console.log('body: ', body);
+    // const body = JSON.parse(event.body);
+    console.log('body: ', event.body);
     return Responses._200({
       message: "Get Source Error Success",
     });
-    const { resourcePath } = body;
-    const action = body.action || "cover";
-    const allowedMimeTypes = [
-      "image/jpeg",
-      "image/gif",
-      "image/png",
-      "image/svg+xml",
-      "image/tiff",
-      "image/bmp",
-    ];
-    const unsupportedSharpMimeTypes = ["image/bmp"];
-    // Fit validation
-    if(action && (FIT_OPTIONS.indexOf(action) === -1)) {
-      return Responses._200({
-        message: "Get Source Error Success",
-      });
-    }
+    // const { resourcePath } = body;
+    // const action = body.action || "cover";
+    // const allowedMimeTypes = [
+    //   "image/jpeg",
+    //   "image/gif",
+    //   "image/png",
+    //   "image/svg+xml",
+    //   "image/tiff",
+    //   "image/bmp",
+    // ];
+    // const unsupportedSharpMimeTypes = ["image/bmp"];
+    // // Fit validation
+    // if(action && (FIT_OPTIONS.indexOf(action) === -1)) {
+    //   return Responses._200({
+    //     message: "Get Source Error Success",
+    //   });
+    // }
 
-    let originalImage = await UtilsService.getResource(resourcePath);
-    if(!originalImage) { 
-      return Responses._404({
-        message: `Resource not found. Could not find resource: ${resourcePath}.`,
-      });
-    }
-    const originalImageMime = originalImage.ContentType;
-    if(!allowedMimeTypes.includes(originalImageMime)) {
-      return Responses._400({
-        message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
-      });
-    }
+    // let originalImage = await UtilsService.getResource(resourcePath);
+    // if(!originalImage) { 
+    //   return Responses._404({
+    //     message: `Resource not found. Could not find resource: ${resourcePath}.`,
+    //   });
+    // }
+    // const originalImageMime = originalImage.ContentType;
+    // if(!allowedMimeTypes.includes(originalImageMime)) {
+    //   return Responses._400({
+    //     message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
+    //   });
+    // }
 
-    if(unsupportedSharpMimeTypes.includes(originalImageMime)) {
-      return Responses._400({
-        message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
-      });
-    }
+    // if(unsupportedSharpMimeTypes.includes(originalImageMime)) {
+    //   return Responses._400({
+    //     message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
+    //   });
+    // }
 
-    const width = 300;
-    const height = 300;
-    const fit = action || 'cover';
+    // const width = 300;
+    // const height = 300;
+    // const fit = action || 'cover';
 
-    // create a new image using provided dimensions.
-    const result = await Sharp(originalImage.Body, { failOnError: false })
-        .resize(width, height, { withoutEnlargement: true, fit })
-        .rotate()
-        .toBuffer();
+    // // create a new image using provided dimensions.
+    // const result = await Sharp(originalImage.Body, { failOnError: false })
+    //     .resize(width, height, { withoutEnlargement: true, fit })
+    //     .rotate()
+    //     .toBuffer();
 
-     // save newly created image to S3.
-     await S3.putObject({
-      Body: result,
-      Bucket: "update-to-s3-minhthong",
-      ContentType: originalImageMime,
-      Key: `resize-images/300x300/${resourcePath.split('/').pop()}`,
-     }).promise();
+    //  // save newly created image to S3.
+    //  await S3.putObject({
+    //   Body: result,
+    //   Bucket: "update-to-s3-minhthong",
+    //   ContentType: originalImageMime,
+    //   Key: `resize-images/300x300/${resourcePath.split('/').pop()}`,
+    //  }).promise();
 
-    return Responses._200({
-      message: `Resize resource "${resourcePath} success"`,
-    });
+    // return Responses._200({
+    //   message: `Resize resource "${resourcePath} success"`,
+    // });
   } catch (error) {
     return Responses._500({ error: error.message });
   }
