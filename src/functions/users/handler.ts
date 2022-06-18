@@ -139,7 +139,7 @@ export const uploadFn = async (
             Key: `images/${
               file.fileName.filename.split(".")[0]
             }${new Date().getTime()}.${file.fileName.filename.split(".")[1]}`,
-            ContentType: file.contentType,
+            ContentType: file.contentType || "image/png",
             Body: file.file,
           };
           const result = await S3.putObject(params).promise();
@@ -166,6 +166,7 @@ export const resizeImage = async (
       });
     }
     const resourcePath = event.detail.requestParameters.key;
+    // const resourcePath = 'images/aspnetcore-developer-roadmap-printable-21655555700651.png';
     console.log('resourcePath', resourcePath);
     const action = "cover";
     const allowedMimeTypes = [
@@ -191,6 +192,7 @@ export const resizeImage = async (
       });
     }
     const originalImageMime = originalImage.ContentType;
+    console.log('originalImageMime', originalImageMime);
     if(!allowedMimeTypes.includes(originalImageMime)) {
       return Responses._400({
         message: `Unsupported MIME type: ${originalImageMime}. Supported types: ${allowedMimeTypes.join(', ')}`,
