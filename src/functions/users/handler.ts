@@ -161,6 +161,10 @@ export const resizeImage = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const body = JSON.parse(event.body);
+    console.log('body: ', body);
+    return Responses._200({
+      message: "Get Source Error Success",
+    });
     const { resourcePath } = body;
     const action = body.action || "cover";
     const allowedMimeTypes = [
