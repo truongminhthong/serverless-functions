@@ -49,7 +49,6 @@ resizeImage:
 handlerSQS:
   handler: src/functions/users/handler.handleEventSQS
   description: A lambda handler SQS Event
-  timeout: 60 # seconds
   memorySize: 128 #mb
   events:
     - http:
