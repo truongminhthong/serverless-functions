@@ -231,3 +231,18 @@ export const resizeImage = async (
     return Responses._500({ error: error.message });
   }
 };
+
+export const handleEventSQS = async (
+  event: any
+): Promise<APIGatewayProxyResult> => {
+  try {
+    for(const {messageId, body} of event.Records) {
+      console.log('SQS message %s: %j', messageId, body);
+    }
+    return Responses._200({
+      message: "handle Event SQS",
+    });
+  } catch (error) {
+    return Responses._500({ error: error.message });
+  }
+};
